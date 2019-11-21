@@ -8,9 +8,7 @@ WHITE  = ( 255, 255, 255)
 pygame.init()
 screen = pygame.display.set_mode([256, 256])
 
-input_path = "/Users/timhenry/Documents/mit/9.660/9660FinalProject/9.660Sprites/"
-os.listdir(input_path)
-
+input_path = "9.660Sprites/"
 
 for (dirpath, dirnames, filenames) in os.walk(input_path):
     for filename in filenames:
@@ -39,7 +37,7 @@ for (dirpath, dirnames, filenames) in os.walk(input_path):
                 elif "green" in name_split:
                     green_ship = pygame.image.load(input_path + filename)
 
-output_path = "C:\\Users\\Dotun Local\\Dropbox (MIT)\\Classwork\\9.660\\project\\Screenshots"
+output_path = "Screenshots/"
 done = False
 
 all_sprites = pygame.sprite.Group()
