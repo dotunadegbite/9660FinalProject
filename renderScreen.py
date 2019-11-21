@@ -1,12 +1,26 @@
 import pygame
 import os
+import numpy as np
+import matplotlib.pyplot as plt
 
 BLACK  = (   0,   0,   0)
 WHITE  = ( 255, 255, 255)
+SCREEN_SIZE = [256, 256]
+
+class GameObject(pygame.sprite.Sprite):
+
+    def __init__(self,x,y,sprite):
+
+        super().__init__()
+
+        self.image = sprite
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
 
 
 pygame.init()
-screen = pygame.display.set_mode([256, 256])
+screen = pygame.display.set_mode(SCREEN_SIZE)
 
 input_path = "9.660Sprites/"
 
@@ -41,9 +55,9 @@ output_path = "Screenshots/"
 done = False
 
 all_sprites = pygame.sprite.Group()
+sprite_locations = []
 
-import numpy as np
-import matplotlib.pyplot as plt
+
 latent_state = np.array([[4, 0, 0, 4, 0],
                          [0, 1, 1, 0, 0],
                          [0, 1, 0, 0, 0],
@@ -51,7 +65,7 @@ latent_state = np.array([[4, 0, 0, 4, 0],
                          [0, 2, 0, 0, 0]])
 
 plt.imshow(latent_state)
-plt.show()
+#plt.show()
 
 
 num_to_sprite = {1: grey_asteroid,
@@ -60,16 +74,57 @@ num_to_sprite = {1: grey_asteroid,
                  4: red_ship,
                  5: red_laser}
 
+def get_sprite(sprite_num):
+    if sprite_num == 1:
+        return grey_asteroid
+    elif sprite_num == 2:
+        return player
+    elif sprite_num == 3:
+        return green_laser
+    elif sprite_num == 4:
+        return red_ship
+    elif sprite_num == 5:
+        return red_laser
+
+def check_bounds(x,y,sprite_rect):
+    newX = x
+    newY = y
+    print("Height: " + str(sprite_rect.height))
+    print("Width: " + str(sprite_rect.width))
+    if (x + sprite_rect.width > SCREEN_SIZE[0]):
+        newX = (x + sprite_rect.width) - SCREEN_SIZE[0]
+        newX += x
+    if (y + sprite_rect.height > SCREEN_SIZE[1]):
+        newY = (y + sprite_rect.height) - SCREEN_SIZE[1]
+        print("Diff: " + str(newY))
+        newY = y - newY
+    return(newX,newY)
 
 for x in range(5):
     for y in range(5):
-        sprite = latent_state[x, y]
-        imagex = x * 50
-        imagey = y * 50
-        screen.fill(BLACK)
-        all_sprites.add()
-        screen.blit(sprite, (imagex, imagey))
-pygame.display.flip()
-pygame.display.update()
+        if latent_state[x,y] != 0 :
+            sprite = num_to_sprite[latent_state[x,y]]
+            sprite_rect = sprite.get_rect()
+            print("Name of: " + str(latent_state[x,y]))
+            center = ((x * 50) + 25, (y * 50) + 25)
+            realX = center[0] - np.ceil(sprite_rect.width / 2)
+            realY = center[1] - np.ceil(sprite_rect.height / 2)
+            #bounds = check_bounds(realY, realX, sprite_rect)
+            imagex = realY + 3
+            imagey = realX + 3
+            print("Latent State: " + str((x,y)))
+            print("Rendered " + str((realX, realY)))
+            #print("Adjusted " + str(bounds))
+            
+            game_object = GameObject(imagex, imagey, sprite)
+            all_sprites.add(game_object)
 
-pygame.image.save(screen, output_path + "test.png")
+while not done:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            done = True
+        screen.fill(BLACK)
+        all_sprites.draw(screen)
+    pygame.display.update()
+    pygame.image.save(screen, output_path + "test.png")
+
