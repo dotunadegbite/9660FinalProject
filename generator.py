@@ -61,8 +61,8 @@ def get_latent(enemy_ship_bernoulli_p=0.4,
 
     return latent
 
-import matplotlib.pyplot as plt
+""" import matplotlib.pyplot as plt
 for _ in range(10):
     plt.imshow(get_latent(), vmin=0, vmax=5)
     plt.colorbar()
-    plt.show()
+    plt.show() """

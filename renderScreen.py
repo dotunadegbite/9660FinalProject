@@ -3,6 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+from generator import get_latent
 BLACK  = (   0,   0,   0)
 WHITE  = ( 255, 255, 255)
 SCREEN_SIZE = [256, 256]
@@ -58,11 +59,11 @@ all_sprites = pygame.sprite.Group()
 sprite_locations = []
 
 
-latent_state = np.array([[4, 0, 0, 4, 0],
+""" latent_state = np.array([[4, 0, 0, 4, 0],
                          [0, 1, 1, 0, 0],
                          [0, 1, 0, 0, 0],
                          [3, 0, 0, 5, 0],
-                         [0, 2, 0, 0, 0]])
+                         [0, 2, 0, 0, 0]]) """
 
 plt.imshow(latent_state)
 #plt.show()
@@ -99,32 +100,33 @@ def check_bounds(x,y,sprite_rect):
         print("Diff: " + str(newY))
         newY = y - newY
     return(newX,newY)
+for i in range(20):
+    latent_state = get_latent()
+    for x in range(5):
+        for y in range(5):
+            if latent_state[x,y] != 0 :
+                sprite = num_to_sprite[latent_state[x,y]]
+                sprite_rect = sprite.get_rect()
+                print("Name of: " + str(latent_state[x,y]))
+                center = ((x * 50) + 25, (y * 50) + 25)
+                realX = center[0] - np.ceil(sprite_rect.width / 2)
+                realY = center[1] - np.ceil(sprite_rect.height / 2)
+                #bounds = check_bounds(realY, realX, sprite_rect)
+                imagex = realY + 3
+                imagey = realX + 3
+                print("Latent State: " + str((x,y)))
+                print("Rendered " + str((realX, realY)))
+                #print("Adjusted " + str(bounds))
+                
+                game_object = GameObject(imagex, imagey, sprite)
+                all_sprites.add(game_object)
 
-for x in range(5):
-    for y in range(5):
-        if latent_state[x,y] != 0 :
-            sprite = num_to_sprite[latent_state[x,y]]
-            sprite_rect = sprite.get_rect()
-            print("Name of: " + str(latent_state[x,y]))
-            center = ((x * 50) + 25, (y * 50) + 25)
-            realX = center[0] - np.ceil(sprite_rect.width / 2)
-            realY = center[1] - np.ceil(sprite_rect.height / 2)
-            #bounds = check_bounds(realY, realX, sprite_rect)
-            imagex = realY + 3
-            imagey = realX + 3
-            print("Latent State: " + str((x,y)))
-            print("Rendered " + str((realX, realY)))
-            #print("Adjusted " + str(bounds))
-            
-            game_object = GameObject(imagex, imagey, sprite)
-            all_sprites.add(game_object)
-
-while not done:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
-        screen.fill(BLACK)
-        all_sprites.draw(screen)
-    pygame.display.update()
-    pygame.image.save(screen, output_path + "test.png")
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+            screen.fill(BLACK)
+            all_sprites.draw(screen)
+        pygame.display.update()
+        pygame.image.save(screen, output_path + "test" + str(i) + ".png")
 
