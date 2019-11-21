@@ -8,7 +8,9 @@ WHITE  = ( 255, 255, 255)
 pygame.init()
 screen = pygame.display.set_mode([256, 256])
 
-input_path = "C:\\Users\\Dotun Local\\Documents\\9.660Sprites\\"
+input_path = "/Users/timhenry/Documents/mit/9.660/9660FinalProject/9.660Sprites/"
+os.listdir(input_path)
+
 
 for (dirpath, dirnames, filenames) in os.walk(input_path):
     for filename in filenames:
@@ -42,12 +44,34 @@ done = False
 
 all_sprites = pygame.sprite.Group()
 
-while not done:
-    imagex = 50
-    imagey = 50
-    screen.fill(BLACK)
-    screen.blit(green_ship, (imagex, imagey))
-    pygame.display.flip()
-    pygame.display.update()
-    pygame.image.save(screen, output_path + "\\test.png")
-    done = True
+import numpy as np
+import matplotlib.pyplot as plt
+latent_state = np.array([[4, 0, 0, 4, 0],
+                         [0, 1, 1, 0, 0],
+                         [0, 1, 0, 0, 0],
+                         [3, 0, 0, 5, 0],
+                         [0, 2, 0, 0, 0]])
+
+plt.imshow(latent_state)
+plt.show()
+
+
+num_to_sprite = {1: grey_asteroid,
+                 2: player,
+                 3: green_laser,
+                 4: red_ship,
+                 5: red_laser}
+
+
+for x in range(5):
+    for y in range(5):
+        sprite = latent_state[x, y]
+        imagex = x * 50
+        imagey = y * 50
+        screen.fill(BLACK)
+        all_sprites.add()
+        screen.blit(sprite, (imagex, imagey))
+pygame.display.flip()
+pygame.display.update()
+
+pygame.image.save(screen, output_path + "test.png")
