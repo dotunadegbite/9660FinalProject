@@ -65,9 +65,6 @@ sprite_locations = []
                          [3, 0, 0, 5, 0],
                          [0, 2, 0, 0, 0]]) """
 
-plt.imshow(latent_state)
-#plt.show()
-
 
 num_to_sprite = {1: grey_asteroid,
                  2: player,
@@ -102,6 +99,9 @@ def check_bounds(x,y,sprite_rect):
     return(newX,newY)
 for i in range(20):
     latent_state = get_latent()
+    done = False
+    screen.fill(BLACK)
+    all_sprites = pygame.sprite.Group()
     for x in range(5):
         for y in range(5):
             if latent_state[x,y] != 0 :
