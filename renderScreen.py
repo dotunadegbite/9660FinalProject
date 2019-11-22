@@ -122,11 +122,13 @@ for i in range(20):
                 all_sprites.add(game_object)
 
     while not done:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                done = True
-            screen.fill(BLACK)
-            all_sprites.draw(screen)
+        screen.fill(BLACK)
+        all_sprites.draw(screen)
         pygame.display.update()
         pygame.image.save(screen, output_path + "test" + str(i) + ".png")
+        done = True
 
+
+"""         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True """
