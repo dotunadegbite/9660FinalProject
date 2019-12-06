@@ -1,4 +1,6 @@
 import pygame
+import torch
+import torch.distributions
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -65,6 +67,31 @@ sprite_locations = []
                          [3, 0, 0, 5, 0],
                          [0, 2, 0, 0, 0]]) """
 
+num_to_laser = {1: red_laser,
+                2: green_laser,
+                3 : blue_laser}
+
+num_to_enemy = {1: red_ship,
+                2: blue_ship,
+                3: green_ship}
+
+
+def get_sprite(num):
+    if num == 1:
+        dist = torch.distributions.Bernoulli(torch.tensor([0.5]))
+        return grey_asteroid if dist.sample() > 0 else asteroid
+    elif num == 2:
+        return player
+    elif num == 3:
+        return yellow_laser
+    elif num == 4:
+        dist = torch.distributions.Uniform(torch.tensor([1.0]), torch.tensor([3.0]))
+        index = int(np.floor(dist.sample()))
+        return num_to_enemy[index]
+    elif num == 5:
+        dist = torch.distributions.Uniform(torch.tensor([1.0]), torch.tensor([3.0]))
+        index = int(np.floor(dist.sample()))
+        return num_to_laser[index]
 
 num_to_sprite = {1: grey_asteroid,
                  2: player,
@@ -72,7 +99,7 @@ num_to_sprite = {1: grey_asteroid,
                  4: red_ship,
                  5: red_laser}
 
-def get_sprite(sprite_num):
+""" def get_sprite(sprite_num):
     if sprite_num == 1:
         return grey_asteroid
     elif sprite_num == 2:
@@ -82,7 +109,7 @@ def get_sprite(sprite_num):
     elif sprite_num == 4:
         return red_ship
     elif sprite_num == 5:
-        return red_laser
+        return red_laser """
 
 def check_bounds(x,y,sprite_rect):
     newX = x
@@ -97,6 +124,8 @@ def check_bounds(x,y,sprite_rect):
         print("Diff: " + str(newY))
         newY = y - newY
     return(newX,newY)
+
+
 for i in range(20):
     latent_state = get_latent()
     done = False
@@ -105,18 +134,13 @@ for i in range(20):
     for x in range(5):
         for y in range(5):
             if latent_state[x,y] != 0 :
-                sprite = num_to_sprite[latent_state[x,y]]
+                sprite = get_sprite(latent_state[x,y])
                 sprite_rect = sprite.get_rect()
-                print("Name of: " + str(latent_state[x,y]))
                 center = ((x * 50) + 25, (y * 50) + 25)
                 realX = center[0] - np.ceil(sprite_rect.width / 2)
                 realY = center[1] - np.ceil(sprite_rect.height / 2)
-                #bounds = check_bounds(realY, realX, sprite_rect)
                 imagex = realY + 3
                 imagey = realX + 3
-                print("Latent State: " + str((x,y)))
-                print("Rendered " + str((realX, realY)))
-                #print("Adjusted " + str(bounds))
                 
                 game_object = GameObject(imagex, imagey, sprite)
                 all_sprites.add(game_object)
@@ -127,8 +151,3 @@ for i in range(20):
         pygame.display.update()
         pygame.image.save(screen, output_path + "test" + str(i) + ".png")
         done = True
-
-
-"""         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                done = True """

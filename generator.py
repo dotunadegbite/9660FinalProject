@@ -38,7 +38,8 @@ def get_latent(enemy_ship_bernoulli_p=0.4,
 
     # Exactly one player ship must be on the grid
     # The player ship can only be on the bottom row of the grid
-    player_pos = torch.distributions.Categorical(torch.tensor([i / 5 for i in range(1, 6)])).sample()
+    #player_pos = torch.distributions.Categorical(torch.tensor([i / 5 for i in range(1, 6)])).sample()
+    player_pos = 4
     latent[4, player_pos] = 2
 
     # Enemy ships can only be on the top row of the grid
@@ -56,13 +57,20 @@ def get_latent(enemy_ship_bernoulli_p=0.4,
     latent[1:4, :] = (sample * torch.Tensor(latent[1:4, :] == 0)) + torch.Tensor(latent[1:4, :]) # must be empty already
 
     player_laser_dist = torch.distributions.Bernoulli(player_laser_bernoulli_p)
-    psample = 3 * player_laser_dist.sample((3, 5))
-    latent[1:4, :] = (psample * torch.Tensor(latent[1:4, :] == 0)) + torch.Tensor(latent[1:4, :])
-
+    psample = 3 * player_laser_dist.sample((3, 3))
+    laser_region = latent[1:4 : ,player_pos-1:player_pos+2]
+    if player_pos == 0:
+        psample = 3 * player_laser_dist.sample((3,2))
+        latent[1:4 : ,player_pos:player_pos+2] = (psample * torch.Tensor(latent[1:4 : ,player_pos:player_pos+2] == 0)) + torch.Tensor(latent[1:4 : ,player_pos:player_pos+2])
+    elif player_pos == 4:
+        psample = 3 * player_laser_dist.sample((3,2))
+        latent[1:4 : ,player_pos-1:player_pos+1] = (psample * torch.Tensor(latent[1:4 : ,player_pos-1:player_pos+1] == 0)) + torch.Tensor(latent[1:4 : ,player_pos-1:player_pos+1])
+    else:
+        latent[1:4 : ,player_pos-1:player_pos+2] = (psample * torch.Tensor(latent[1:4 : ,player_pos-1:player_pos+2] == 0)) + torch.Tensor(latent[1:4 : ,player_pos-1:player_pos+2])
     return latent
 
 """ import matplotlib.pyplot as plt
-for _ in range(10):
+for _ in range(1):
     plt.imshow(get_latent(), vmin=0, vmax=5)
     plt.colorbar()
-    plt.show() """
+    plt.show() """ 
