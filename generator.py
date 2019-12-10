@@ -1,5 +1,4 @@
 import numpy as np
-import pyro
 import torch
 import torch.distributions
 
@@ -60,6 +59,14 @@ def get_latent(enemy_ship_bernoulli_p=0.4,
     latent[1:4, :] = (psample * torch.Tensor(latent[1:4, :] == 0)) + torch.Tensor(latent[1:4, :])
 
     return latent
+
+
+def latent_to_one_hot(latent):
+    output = np.zeros((5, 5, 6), dtype=int)
+    for i in range(6):
+        output[:, :, i] = np.ma.masked_where(latent == i, latent).mask
+    return output
+
 
 """ import matplotlib.pyplot as plt
 for _ in range(10):
