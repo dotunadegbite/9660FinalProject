@@ -1,4 +1,6 @@
 import pygame
+import torch
+import torch.distributions
 import os
 import numpy as np
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -65,6 +67,31 @@ sprite_locations = []
                          [3, 0, 0, 5, 0],
                          [0, 2, 0, 0, 0]]) """
 
+num_to_laser = {1: red_laser,
+                2: green_laser,
+                3 : blue_laser}
+
+num_to_enemy = {1: red_ship,
+                2: blue_ship,
+                3: green_ship}
+
+
+def get_sprite(num):
+    if num == 1:
+        dist = torch.distributions.Bernoulli(torch.tensor([0.5]))
+        return grey_asteroid if dist.sample() > 0 else asteroid
+    elif num == 2:
+        return player
+    elif num == 3:
+        return yellow_laser
+    elif num == 4:
+        dist = torch.distributions.Uniform(torch.tensor([1.0]), torch.tensor([3.0]))
+        index = int(np.floor(dist.sample()))
+        return num_to_enemy[index]
+    elif num == 5:
+        dist = torch.distributions.Uniform(torch.tensor([1.0]), torch.tensor([3.0]))
+        index = int(np.floor(dist.sample()))
+        return num_to_laser[index]
 
 num_to_sprite = {1: grey_asteroid,
                  2: player,
@@ -72,7 +99,7 @@ num_to_sprite = {1: grey_asteroid,
                  4: red_ship,
                  5: red_laser}
 
-def get_sprite(sprite_num):
+""" def get_sprite(sprite_num):
     if sprite_num == 1:
         return grey_asteroid
     elif sprite_num == 2:
@@ -82,7 +109,7 @@ def get_sprite(sprite_num):
     elif sprite_num == 4:
         return red_ship
     elif sprite_num == 5:
-        return red_laser
+        return red_laser """
 
 def check_bounds(x,y,sprite_rect):
     newX = x
@@ -99,25 +126,21 @@ def check_bounds(x,y,sprite_rect):
     return(newX,newY)
 
 
+
 def render_from_latent(latent_state, path):
     done = False
     screen.fill(BLACK)
     all_sprites = pygame.sprite.Group()
     for x in range(5):
         for y in range(5):
-            if latent_state[x, y] != 0:
-                sprite = num_to_sprite[latent_state[x, y]]
+            if latent_state[x,y] != 0 :
+                sprite = get_sprite(latent_state[x,y])
                 sprite_rect = sprite.get_rect()
-                # print("Name of: " + str(latent_state[x,y]))
                 center = ((x * 50) + 25, (y * 50) + 25)
                 realX = center[0] - np.ceil(sprite_rect.width / 2)
                 realY = center[1] - np.ceil(sprite_rect.height / 2)
-                # bounds = check_bounds(realY, realX, sprite_rect)
                 imagex = realY + 3
                 imagey = realX + 3
-                # print("Latent State: " + str((x,y)))
-                # print("Rendered " + str((realX, realY)))
-                # print("Adjusted " + str(bounds))
 
                 game_object = GameObject(imagex, imagey, sprite)
                 all_sprites.add(game_object)
@@ -126,16 +149,7 @@ def render_from_latent(latent_state, path):
         screen.fill(BLACK)
         all_sprites.draw(screen)
         pygame.display.update()
-
         pygame.image.save(screen, path)
-        # stimulus = pygame.surfarray.array3d(screen)
-        # stimulus = np.moveaxis(stimulus, 0, 1)
-        #
-        # # print("Screen: ",x.shape)
-        # # from PIL import Image
-        # # Image.fromarray(x).show()
-        # np.save(path, stimulus)
-        # np.save(label_directory + str(i) + ".npy", latent_state)
         done = True
 
 stimulus_directory = "./data/stimuli/"
@@ -181,8 +195,3 @@ label_directory = "./data/labels/"
 #         np.save(stimulus_directory + str(i) + ".npy", stimulus)
 #         np.save(label_directory + str(i) + ".npy", latent_state)
 #         done = True
-
-
-"""         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                done = True """
