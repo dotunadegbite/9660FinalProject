@@ -20,7 +20,7 @@ def train(device, model, train_loader, test_split, optimizer, epoch, args):
         pred = out.argmax(dim=-1, keepdim=True)  # get pred latent state
 
         # Eval / Backward
-        num_correct_train += pred.eq(target.view_as(pred)).all().item()
+        num_correct_train += pred.eq(target.view_as(pred)).sum().item() / 25.
         loss = F.nll_loss(out.permute(0, 3, 1, 2), target, reduction='mean')
         batch_loss += loss.item()
         loss.backward()
@@ -59,7 +59,7 @@ def test(device, model, test_loader, test_split):
         data, target = data.to(device), target.to(device)
         out = model(data)
         pred = out.argmax(dim=-1, keepdim=True)
-        num_correct_test += pred.eq(target.view_as(pred)).all().item()
+        num_correct_test += pred.eq(target.view_as(pred)).sum().item() / 25.
 
     print("Test Acc: ", num_correct_test / (test_split * len(test_loader.dataset)),
           " (", num_correct_test, "/", (test_split * len(test_loader.dataset)), ")\n\n\n")
