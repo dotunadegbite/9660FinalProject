@@ -37,8 +37,7 @@ def get_latent(enemy_ship_bernoulli_p=0.4,
 
     # Exactly one player ship must be on the grid
     # The player ship can only be on the bottom row of the grid
-    #player_pos = torch.distributions.Categorical(torch.tensor([i / 5 for i in range(1, 6)])).sample()
-    player_pos = 4
+    player_pos = torch.distributions.Categorical(torch.tensor([i / 5 for i in range(1, 6)])).sample()
     latent[4, player_pos] = 2
 
     # Enemy ships can only be on the top row of the grid
