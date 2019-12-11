@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
-from torchvision.models import resnet18, alexnet
+from torchvision.models import *
 import torch.optim as optim
 
 
@@ -17,7 +17,17 @@ class Reshape(nn.Module):
 
 models = {
     "resnet18": nn.Sequential(resnet18(pretrained=False), nn.Linear(1000, 150), Reshape(-1, 5, 5, 6)),
-    "alexnet": nn.Sequential(alexnet(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6))
+    "resnet50": nn.Sequential(resnet50(pretrained=False), nn.Linear(1000, 150), Reshape(-1, 5, 5, 6)),
+    "alexnet": nn.Sequential(alexnet(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6)),
+    # "inception_v3": nn.Sequential(inception_v3(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6)),
+    'vgg11': nn.Sequential(vgg11_bn(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6)),
+    'vgg13': nn.Sequential(vgg13_bn(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6)),
+    'vgg16': nn.Sequential(vgg16_bn(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6)),
+    'vgg19':  nn.Sequential(vgg19_bn(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6)),
+    'vgg11_bn': nn.Sequential(vgg11_bn(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6)),
+    'vgg13_bn': nn.Sequential(vgg13_bn(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6)),
+    'vgg16_bn': nn.Sequential(vgg16_bn(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6)),
+    'vgg19_bn':  nn.Sequential(vgg19_bn(pretrained=False, num_classes=150), Reshape(-1, 5, 5, 6)),
 }
 
 
