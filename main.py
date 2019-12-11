@@ -10,6 +10,7 @@ import util
 
 def train(device, model, train_loader, test_split, optimizer, epoch, args):
     model.train()
+    num_pixelwise_correct_train = 0.
     num_correct_train = 0.
     batch_loss = 0.
 
@@ -20,7 +21,8 @@ def train(device, model, train_loader, test_split, optimizer, epoch, args):
         pred = out.argmax(dim=-1, keepdim=True)  # get pred latent state
 
         # Eval / Backward
-        num_correct_train += pred.eq(target.view_as(pred)).sum().item() / 25.
+        num_pixelwise_correct_train += pred.eq(target.view_as(pred)).sum().item() / 25.
+        num_correct_train += pred.eq(target.view_as(pred)).all().item()
         loss = F.nll_loss(out.permute(0, 3, 1, 2), target, reduction='mean')
         batch_loss += loss.item()
         loss.backward()
@@ -47,20 +49,26 @@ def train(device, model, train_loader, test_split, optimizer, epoch, args):
             renderScreen.render_from_latent(pred.cpu().numpy()[0, :, :, 0], stimulus_directory)
 
     # Report epoch training acc
+    print("\nPixelwise Train Acc: ", num_pixelwise_correct_train / ((1 - test_split) * len(train_loader.dataset)),
+          " (", num_pixelwise_correct_train, "/", ((1 - test_split) * len(train_loader.dataset)), ")")
     print("Train Acc: ", num_correct_train / ((1 - test_split) * len(train_loader.dataset)),
-          " (", num_correct_train, "/", ((1 - test_split) * len(train_loader.dataset)), ")")
+          " (", num_correct_train, "/", ((1 - test_split) * len(train_loader.dataset)), ")\n")
 
 
 def test(device, model, test_loader, test_split):
     model.eval()
+    num_pixelwise_correct_test = 0.
     num_correct_test = 0.
 
     for batch_idx, (data, target) in enumerate(test_loader):
         data, target = data.to(device), target.to(device)
         out = model(data)
         pred = out.argmax(dim=-1, keepdim=True)
-        num_correct_test += pred.eq(target.view_as(pred)).sum().item() / 25.
+        num_pixelwise_correct_test += pred.eq(target.view_as(pred)).sum().item() / 25.
+        num_correct_test += pred.eq(target.view_as(pred)).all().item()
 
+    print("Pixelwise Test Acc: ", num_pixelwise_correct_test / (test_split * len(test_loader.dataset)),
+          " (", num_pixelwise_correct_test, "/", (test_split * len(test_loader.dataset)), ")")
     print("Test Acc: ", num_correct_test / (test_split * len(test_loader.dataset)),
           " (", num_correct_test, "/", (test_split * len(test_loader.dataset)), ")\n\n\n")
 
